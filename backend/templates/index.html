@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rotcipe</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: #0F0A1A;
+      color: #E9D5FF;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(140deg, #1E1533 0%, #0F0A1A 50%, #1A0B2E 100%);
+      position: relative;
+      overflow-y: auto;
+      min-height: 100vh;
+    }
+    
+    .gradient-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(147, 51, 234, 0.15) 0%, transparent 35%),
+        radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      min-height: 100vh;
+    }
+    
+    .premium-card {
+      background: linear-gradient(165deg, rgba(38, 25, 57, 0.95) 0%, rgba(23, 16, 38, 0.95) 100%);
+      border: 1px solid rgba(147, 51, 234, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                  0 0 0 1px rgba(147, 51, 234, 0.1);
+      backdrop-filter: blur(20px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .premium-card:hover {
+      border-color: rgba(147, 51, 234, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(147, 51, 234, 0.2),
+                  0 0 0 1px rgba(147, 51, 234, 0.2);
+    }
+    
+    .upload-zone {
+      background: rgba(147, 51, 234, 0.05);
+      border: 2px dashed rgba(147, 51, 234, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .upload-zone::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(147, 51, 234, 0.1), rgba(168, 85, 247, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .upload-zone:hover::before {
+      opacity: 1;
+    }
+    
+    .upload-zone:hover {
+      border-color: rgba(147, 51, 234, 0.4);
+      transform: scale(1.01);
+    }
+    
+    .image-preview-container {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      margin: auto;
+    }
+    
+    .image-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 2px solid rgba(147, 51, 234, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: brightness(0.9) contrast(1.1);
+    }
+    
+    .image-preview-container:hover .image-preview {
+      transform: scale(1.03);
+      border-color: rgba(147, 51, 234, 0.6);
+      box-shadow: 0 0 30px rgba(147, 51, 234, 0.3);
+      filter: brightness(1) contrast(1.1);
+    }
+    
+    .cyber-button {
+      background: linear-gradient(45deg, #7E22CE, #9333EA);
+      position: relative;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(147, 51, 234, 0.3);
+      overflow: hidden;
+    }
+    
+    .cyber-button::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(147, 51, 234, 0.4) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      transform: rotate(45deg);
+    }
+    
+    .cyber-button:hover:not(:disabled)::before {
+      opacity: 1;
+      animation: rotate 2s linear infinite;
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .cyber-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(147, 51, 234, 0.4);
+    }
+    
+    .cyber-button:disabled {
+      background: #2D2A35;
+      border-color: rgba(147, 51, 234, 0.1);
+    }
+    
+    .loading-anim {
+      animation: cyberpulse 2s ease-in-out infinite;
+      background: linear-gradient(45deg, #7E22CE, #9333EA);
+    }
+    
+    @keyframes cyberpulse {
+      0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% { 
+        opacity: 0.5;
+        transform: scale(0.9);
+      }
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(147, 51, 234, 0.1);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(147, 51, 234, 0.3);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(147, 51, 234, 0.5);
+    }
+    
+    /* Cyberpunk text effect */
+    .cyber-text {
+      color: #fff;
+      text-shadow: 0 0 10px rgba(147, 51, 234, 0.5),
+                   0 0 20px rgba(147, 51, 234, 0.3),
+                   0 0 30px rgba(147, 51, 234, 0.2);
+      background: linear-gradient(180deg, #fff, #E9D5FF);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+    
+    .cyber-text::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+      animation: flicker 4s infinite alternate;
+      z-index: -1;
+    }
+    
+    @keyframes flicker {
+      0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+        opacity: 0.99;
+        text-shadow: 0 0 10px rgba(147, 51, 234, 0.5),
+                     0 0 20px rgba(147, 51, 234, 0.3);
+      }
+      20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+        opacity: 0.4;
+        text-shadow: none;
+      }
+    }
+    
+    /* Enhanced glass effect for cards */
+    .glass-effect {
+      background: rgba(38, 25, 57, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(147, 51, 234, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Added overflow for recipe output */
+    #recipe {
+      max-height: 60vh;
+      overflow-y: auto;
+      margin-top: 1rem;
+      padding: 1rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: hidden;
+    }
+
+    /* Enhanced scrollbar styling for recipe container */
+    #recipe::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #recipe::-webkit-scrollbar-track {
+      background: rgba(147, 51, 234, 0.1);
+      border-radius: 4px;
+    }
+
+    #recipe::-webkit-scrollbar-thumb {
+      background: rgba(147, 51, 234, 0.4);
+      border-radius: 4px;
+    }
+
+    #recipe::-webkit-scrollbar-thumb:hover {
+      background: rgba(147, 51, 234, 0.6);
+    }
+
+    /* Update the log container styles */
+    #log-container {
+      max-height: 60vh;
+      overflow-y: auto;
+      padding: 1rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen">
+  <div class="container mx-auto px-4 py-16 min-h-screen">
+    <div class="max-w-4xl mx-auto space-y-10">
+      <!-- Header -->
+      <div class="text-center mb-16">
+        <h1 class="text-6xl font-bold mb-6 cyber-text" data-text="🧪 Rotcipe">
+          🧪 Rotcipe
+        </h1>
+        <p class="text-xl text-purple-300 tracking-wide">Transform Your Food Photos Into Culinary Magic</p>
+      </div>
+      
+      <!-- Main Card -->
+      <div class="premium-card rounded-3xl p-10">
+        <!-- Upload Section -->
+        <div class="upload-zone rounded-2xl p-10 text-center">
+          <label class="cursor-pointer block">
+            <div class="cyber-button text-white font-semibold py-4 px-8 rounded-xl inline-flex items-center space-x-3 mb-4">
+              <span>📸</span>
+              <span class="tracking-wide">Choose Images</span>
+            </div>
+            <input type="file" multiple accept=".png,.jpg,.jpeg,.webp" class="hidden" id="imageInput" onchange="handleImageSelect(event)">
+            <p class="text-purple-200 text-lg">Drop your culinary masterpieces here</p>
+            <p class="text-purple-400/80 mt-2">PNG • JPG • JPEG • WebP</p>
+            <p class="text-purple-400/60 text-sm mt-1">Max file size: 10MB per image</p>
+          </label>
+        </div>
+        
+        <!-- Image Preview Section -->
+        <div id="imagePreview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-10"></div>
+        
+        <!-- Generate Button -->
+        <div class="text-center mt-10">
+          <button 
+            onclick="handleUpload()" 
+            id="generateButton" 
+            class="cyber-button py-4 px-12 rounded-xl text-white font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center space-x-3">
+            <span>🪄</span>
+            <span class="tracking-wide">Generate Recipe</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Recipe Result Card -->
+      <div class="premium-card rounded-3xl p-10">
+        <h2 class="text-3xl font-bold mb-8 cyber-text" data-text="🍳 Generated Recipe">
+          🍳 Generated Recipe
+        </h2>
+        <div id="loading-states" class="mb-8 space-y-4 hidden">
+          <video id="loadingVideo" 
+                 class="w-full max-w-md mx-auto rounded-xl shadow-lg mb-8" 
+                 loop 
+                 playsinline 
+                 autoplay>
+            <source src="/static/cat.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <div class="flex items-center space-x-3 p-4 glass-effect rounded-xl" id="identify-loading">
+            <div class="loading-anim h-3 w-3 rounded-full"></div>
+            <span class="text-purple-200 font-medium tracking-wide">Identifying ingredients...</span>
+          </div>
+          <div class="flex items-center space-x-3 p-4 glass-effect rounded-xl" id="process-loading">
+            <div class="loading-anim h-3 w-3 rounded-full"></div>
+            <span class="text-purple-200 font-medium tracking-wide">Processing ingredients...</span>
+          </div>
+          <div class="flex items-center space-x-3 p-4 glass-effect rounded-xl" id="recipe-loading">
+            <div class="loading-anim h-3 w-3 rounded-full"></div>
+            <span class="text-purple-200 font-medium tracking-wide">Creating recipe...</span>
+          </div>
+        </div>
+        <pre id="recipe" class="whitespace-pre-wrap text-purple-200 font-sans glass-effect p-8 rounded-xl"></pre>
+      </div>
+      
+      <!-- Logs Card -->
+      <div class="premium-card rounded-3xl p-10">
+        <h2 class="text-2xl font-bold mb-6 cyber-text" data-text="🔍 Processing Logs">
+          🔍 Processing Logs
+        </h2>
+        <div id="log-container" class="glass-effect rounded-xl p-8 font-mono text-sm text-purple-300 max-h-60 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <script>
+    let selectedFiles = [];
+  
+    function handleImageSelect(event) {
+      const files = event.target.files;
+      selectedFiles = [...selectedFiles, ...Array.from(files)];
+      
+      const previewContainer = document.getElementById('imagePreview');
+      previewContainer.innerHTML = '';
+      
+      selectedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.createElement('div');
+          preview.className = 'image-preview-container';
+          preview.innerHTML = `
+            <div class="relative">
+              <img src="${e.target.result}" 
+                   class="image-preview" 
+                   alt="Preview">
+              <button onclick="removeImage(${index})" 
+                      class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all">
+                ×
+              </button>
+            </div>
+          `;
+          previewContainer.appendChild(preview);
+        }
+        reader.readAsDataURL(file);
+      });
+      
+      const generateButton = document.getElementById('generateButton');
+      generateButton.disabled = selectedFiles.length === 0;
+    }
+  
+    function removeImage(index) {
+      selectedFiles.splice(index, 1);
+      const previewContainer = document.getElementById('imagePreview');
+      previewContainer.innerHTML = '';
+      
+      selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.createElement('div');
+          preview.className = 'image-preview-container';
+          preview.innerHTML = `
+            <div class="relative">
+              <img src="${e.target.result}" 
+                   class="image-preview" 
+                   alt="Preview">
+              <button onclick="removeImage(${idx})" 
+                      class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all">
+                ×
+              </button>
+            </div>
+          `;
+          previewContainer.appendChild(preview);
+        }
+        reader.readAsDataURL(file);
+      });
+      
+      const generateButton = document.getElementById('generateButton');
+      generateButton.disabled = selectedFiles.length === 0;
+    }
+  
+    function updateLoadingState(state, completed = false) {
+      const element = document.getElementById(`${state}-loading`);
+      const anim = element.querySelector('.loading-anim');
+      const text = element.querySelector('span');
+      
+      if (completed) {
+        anim.style.animation = 'none';
+        anim.style.background = 'linear-gradient(45deg, #22C55E, #16A34A)';
+        text.classList.remove('text-purple-200');
+        text.classList.add('text-green-400');
+        text.innerHTML += ' ✓';
+      }
+    }
+  
+    async function handleUpload() {
+      if (selectedFiles.length === 0) return;
+  
+      const generateButton = document.getElementById('generateButton');
+      const logContainer = document.getElementById('log-container');
+      const recipeContainer = document.getElementById('recipe');
+      const loadingStates = document.getElementById('loading-states');
+      const loadingVideo = document.getElementById('loadingVideo');
+      
+      // Reset and show loading states
+      loadingStates.classList.remove('hidden');
+      // Start playing the video
+      loadingVideo.play();
+      
+      // Disable button during processing
+      generateButton.disabled = true;
+      generateButton.innerHTML = '⏳ Generating...';
+      
+      try {
+        const formData = new FormData();
+        selectedFiles.forEach((file, index) => {
+          formData.append(`files[]`, file);
+        });
+  
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        // Add error message display
+        if (result.error) {
+          logContainer.innerHTML = `Error: ${result.error}<br>${result.logs.join('<br>')}`;
+          recipeContainer.textContent = 'Failed to generate recipe';
+          return;
+        }
+        
+        // Update loading states based on logs
+        if (result.logs) {
+          logContainer.innerHTML = result.logs.join('<br>');
+          
+          if (result.logs.some(log => log.includes('Identifying'))) {
+            updateLoadingState('identify', true);
+          }
+          if (result.logs.some(log => log.includes('Processing'))) {
+            updateLoadingState('process', true);
+          }
+          if (result.logs.some(log => log.includes('Creating'))) {
+            updateLoadingState('recipe', true);
+          }
+        }
+  
+        recipeContainer.textContent = result.recipe || 'No recipe generated';
+  
+      } catch (error) {
+        console.error('Error:', error);
+        logContainer.innerHTML = `Error: ${error.message}<br>Please try again or contact support if the issue persists.`;
+        recipeContainer.textContent = 'Failed to generate recipe';
+      } finally {
+        generateButton.disabled = false;
+        generateButton.innerHTML = '🪄 Generate Recipe';
+        // Stop and hide the video
+        loadingVideo.pause();
+        loadingVideo.currentTime = 0;
+      }
+    }
+  </script>
+</body>
+</html>
